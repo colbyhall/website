@@ -312,7 +312,9 @@ normal paragraph. For example:
 
 Use the `printf()` function.
 
-| Syntax      | Description |
-| ----------- | ----------- |
-| Header      | Title       |
-| Paragraph   | Text        |
+```cpp
+int main() {
+    std::cout << "Hello World\n";
+    return 0;
+}
+```
