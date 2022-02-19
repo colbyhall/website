@@ -57,6 +57,12 @@ impl ToString for Date {
 }
 
 pub struct Blog {
+	// Current version is 0
+	//
+	// + Version 0
+	//		- Added Title
+	//      - Added Date
+	pub version: u32,
 	pub title: String,
 	pub date: Date,
 
@@ -66,6 +72,8 @@ pub struct Blog {
 #[derive(Debug)]
 pub enum BlogError {
 	PathNotValid(PathBuf),
+	MissingVersion,
+	InvalidVersion,
 	MissingTitle,
 	MissingDate,
 	InvalidDate,
@@ -77,6 +85,13 @@ impl Blog {
 			fs::read_to_string(path).map_err(|_| BlogError::PathNotValid(PathBuf::from(path)))?;
 
 		let mut lines = file.lines();
+
+		let version = lines
+			.next()
+			.ok_or(BlogError::MissingVersion)?
+			.parse::<u32>()
+			.map_err(|_| BlogError::InvalidVersion)?;
+
 		let title = lines.next().ok_or(BlogError::MissingTitle)?.to_string();
 		let date_string = lines.next().ok_or(BlogError::MissingDate)?;
 		let date = Date::new(date_string).ok_or(BlogError::InvalidDate)?;
@@ -94,7 +109,12 @@ impl Blog {
 		let mut body = String::new();
 		HtmlWriter::new(parser, &mut body).run().unwrap();
 
-		Ok(Blog { title, date, body })
+		Ok(Blog {
+			version,
+			title,
+			date,
+			body,
+		})
 	}
 }
 
