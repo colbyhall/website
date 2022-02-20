@@ -1,6 +1,7 @@
-0
+1
 Debug
 08/21/2021
+5
 
 # Markdown: Syntax
 
@@ -313,9 +314,8 @@ normal paragraph. For example:
 
 Use the `printf()` function.
 
-```cpp
-int main() {
-    std::cout << "Hello World\n";
-    return 0;
+```rs
+fn main() {
+    println!("Hello World");
 }
 ```

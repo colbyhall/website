@@ -59,14 +59,19 @@ impl ToString for Date {
 
 #[derive(Clone, Debug)]
 pub struct Article {
-	// Current version is 0
+	// Current version is 1
 	//
 	// + Version 0
 	//		- Added Title
 	//      - Added Date
+	// + Version 1
+	//		- Added ReadTime
 	pub version: u32,
 	pub title: String,
 	pub date: Date,
+
+	// In minutes
+	pub read_time: f32,
 
 	pub body: String,
 }
@@ -79,6 +84,8 @@ pub enum ArticleError {
 	MissingTitle,
 	MissingDate,
 	InvalidDate,
+	MissingReadTime,
+	InvalidReadTime,
 }
 
 impl Article {
@@ -98,6 +105,17 @@ impl Article {
 		let date_string = lines.next().ok_or(ArticleError::MissingDate)?;
 		let date = Date::new(date_string).ok_or(ArticleError::InvalidDate)?;
 
+		// Grab the read time
+		let read_time = if version >= 1 {
+			lines
+				.next()
+				.ok_or(ArticleError::MissingReadTime)?
+				.parse::<f32>()
+				.map_err(|_| ArticleError::InvalidReadTime)?
+		} else {
+			0.0
+		};
+
 		let lines: Vec<&str> = lines.collect();
 
 		let mut to_parse = String::new();
@@ -116,6 +134,7 @@ impl Article {
 			title,
 			date,
 			body,
+			read_time,
 		})
 	}
 }

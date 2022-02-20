@@ -36,6 +36,7 @@ struct ArticleLayout<'a> {
 	title: &'a str,
 	date: &'a str,
 	body: &'a str,
+	read_time: &'a str,
 }
 
 struct GlobalState {
@@ -110,6 +111,7 @@ async fn main() {
 						title: &article.title,
 						date: &article.date.to_string(),
 						body: &article.body,
+						read_time: &format!("{} min read", article.read_time)
 					},
 				)
 				.unwrap_or_else(|err| err.to_string());
@@ -121,5 +123,5 @@ async fn main() {
 
 	let routes = warp::get().and(root.or(article_entry).or(public));
 
-	warp::serve(routes).run(([127, 0, 0, 1], 5050)).await;
+	warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
 }
