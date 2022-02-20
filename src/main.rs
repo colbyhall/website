@@ -163,5 +163,5 @@ async fn main() {
 
 	let routes = warp::get().and(root.or(articles_entry).or(article_entry).or(public));
 
-	warp::serve(routes).run(([127, 0, 0, 1], 1010)).await;
+	warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
 }

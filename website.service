@@ -1,0 +1,11 @@
+[Unit]
+Description=Service for running the website
+
+[Service]
+User=root
+WorkingDirectory=/root/website
+ExecStart=/root/website cargo run
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
