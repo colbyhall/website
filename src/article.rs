@@ -9,6 +9,7 @@ use pulldown_cmark::{
 	Parser,
 };
 
+#[derive(Debug, Clone)]
 pub struct Date {
 	pub month: u8,
 	pub day: u8,
@@ -56,7 +57,8 @@ impl ToString for Date {
 	}
 }
 
-pub struct Blog {
+#[derive(Clone, Debug)]
+pub struct Article {
 	// Current version is 0
 	//
 	// + Version 0
@@ -70,7 +72,7 @@ pub struct Blog {
 }
 
 #[derive(Debug)]
-pub enum BlogError {
+pub enum ArticleError {
 	PathNotValid(PathBuf),
 	MissingVersion,
 	InvalidVersion,
@@ -79,22 +81,22 @@ pub enum BlogError {
 	InvalidDate,
 }
 
-impl Blog {
-	pub fn new(path: &Path) -> Result<Self, BlogError> {
-		let file =
-			fs::read_to_string(path).map_err(|_| BlogError::PathNotValid(PathBuf::from(path)))?;
+impl Article {
+	pub fn new(path: &Path) -> Result<Self, ArticleError> {
+		let file = fs::read_to_string(path)
+			.map_err(|_| ArticleError::PathNotValid(PathBuf::from(path)))?;
 
 		let mut lines = file.lines();
 
 		let version = lines
 			.next()
-			.ok_or(BlogError::MissingVersion)?
+			.ok_or(ArticleError::MissingVersion)?
 			.parse::<u32>()
-			.map_err(|_| BlogError::InvalidVersion)?;
+			.map_err(|_| ArticleError::InvalidVersion)?;
 
-		let title = lines.next().ok_or(BlogError::MissingTitle)?.to_string();
-		let date_string = lines.next().ok_or(BlogError::MissingDate)?;
-		let date = Date::new(date_string).ok_or(BlogError::InvalidDate)?;
+		let title = lines.next().ok_or(ArticleError::MissingTitle)?.to_string();
+		let date_string = lines.next().ok_or(ArticleError::MissingDate)?;
+		let date = Date::new(date_string).ok_or(ArticleError::InvalidDate)?;
 
 		let lines: Vec<&str> = lines.collect();
 
@@ -109,7 +111,7 @@ impl Blog {
 		let mut body = String::new();
 		HtmlWriter::new(parser, &mut body).run().unwrap();
 
-		Ok(Blog {
+		Ok(Article {
 			version,
 			title,
 			date,

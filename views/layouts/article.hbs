@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{browser_title}}</title>
+    <link href="/public/style/articles.css" rel="stylesheet" type="text/css">
+    <link rel="icon" href="/public/images/favicon_pGa_icon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap"
+        rel="stylesheet">
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.1.0/css/all.css"
+        integrity="sha384-87DrmpqHRiY8hPLIr7ByqhPIywuSsjuQAfMXAE0sMUpY3BM7nXjf+mLIUSvhDArs" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+</head>
+
+<body>
+    <section class="container article-width">
+        <article>
+            <header>
+                <h1>{{title}}</h1>
+                <h3>{{date}}</h3>
+            </header>
+            <section>
+                {{{body}}}
+            </section>
+        </article>
+    
+        <hr>
+    
+        <script src="https://utteranc.es/client.js" repo="colbyhall/website" issue-term="url" label="Article Comments"
+            theme="github-light" crossorigin="anonymous" async>
+            </script>
+    </section>
+
+    {{>footer}}
+
+    <script>
+        $("a[href^='#']").click(function (e) {
+            e.preventDefault();
+
+            var position = $($(this).attr("href")).offset().top - (window.innerHeight / 2);
+
+            $("body, html").animate({
+                scrollTop: position
+            }, 300);
+        });
+    </script>
+    <script>hljs.highlightAll();</script>
+</body>
+
+</html>

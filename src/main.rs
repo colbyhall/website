@@ -12,8 +12,8 @@ use {
 	warp::Filter,
 };
 
-mod blog;
-use blog::*;
+mod article;
+use article::*;
 
 #[derive(Serialize)]
 struct BaseLayout<'a> {
@@ -31,14 +31,15 @@ impl<'a> BaseLayout<'a> {
 }
 
 #[derive(Serialize)]
-struct BlogLayout<'a> {
+struct ArticleLayout<'a> {
+	browser_title: &'a str,
 	title: &'a str,
 	date: &'a str,
 	body: &'a str,
 }
 
 struct GlobalState {
-	blogs: HashMap<String, Blog>,
+	articles: HashMap<String, Article>,
 }
 
 impl GlobalState {
@@ -62,7 +63,7 @@ async fn main() {
 	hbs.register_template_file("base", "views/layouts/base.hbs")
 		.unwrap();
 
-	hbs.register_template_file("blog", "views/layouts/blog.hbs")
+	hbs.register_template_file("article", "views/layouts/article.hbs")
 		.unwrap();
 
 	let hbs = Arc::new(hbs);
@@ -76,47 +77,40 @@ async fn main() {
 		warp::reply::html(render)
 	});
 
-	let mut blogs = HashMap::new();
-	for e in fs::read_dir("blogs").unwrap() {
+	let mut articles = HashMap::new();
+	for e in fs::read_dir("articles").unwrap() {
 		let e = e.unwrap();
 		if e.file_type().unwrap().is_file() {
 			let path = e.path();
-			let blog = Blog::new(&path).unwrap();
-			blogs.insert(
+			let article = Article::new(&path).unwrap();
+			articles.insert(
 				path.file_stem().unwrap().to_str().unwrap().to_string(),
-				blog,
+				article,
 			);
 		}
 	}
 
-	let global_state = GlobalState { blogs };
+	let global_state = GlobalState { articles };
 	unsafe { GLOBAL = Some(global_state) };
 
-	let blog_entry_hbs = hbs.clone();
-	// let blog_global_state = global_state.clone();
-	let blog_entry = warp::path!("blog" / String)
-		.and_then(|blog| async move {
-			match GlobalState::get().blogs.get(&blog) {
-				Some(blog) => Ok(blog),
+	let article_entry_hbs = hbs.clone();
+	let article_entry = warp::path!("articles" / String)
+		.and_then(|article| async move {
+			match GlobalState::get().articles.get(&article) {
+				Some(article) => Ok(article),
 				None => Err(warp::reject::not_found()),
 			}
 		})
-		.map(move |blog: &Blog| {
-			let base = blog_entry_hbs
+		.map(move |article: &Article| {
+			let render = article_entry_hbs
 				.render(
-					"blog",
-					&BlogLayout {
-						title: &blog.title,
-						date: &blog.date.to_string(),
-						body: &blog.body,
+					"article",
+					&ArticleLayout {
+						browser_title: &format!("Colby Hall | {}", &article.title),
+						title: &article.title,
+						date: &article.date.to_string(),
+						body: &article.body,
 					},
-				)
-				.unwrap_or_else(|err| err.to_string());
-
-			let render = blog_entry_hbs
-				.render(
-					"base",
-					&BaseLayout::new(&format!("Colby Hall | {}", &blog.title), &base),
 				)
 				.unwrap_or_else(|err| err.to_string());
 
@@ -125,7 +119,7 @@ async fn main() {
 
 	let public = warp::path("public").and(warp::fs::dir("public"));
 
-	let routes = warp::get().and(root.or(blog_entry).or(public));
+	let routes = warp::get().and(root.or(article_entry).or(public));
 
 	warp::serve(routes).run(([127, 0, 0, 1], 5050)).await;
 }
