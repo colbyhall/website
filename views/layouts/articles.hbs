@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>{{browser_title}}</title>
+    <title>Colby Hall | Articles</title>
     <link rel="icon" href="/public/images/favicon_pGa_icon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,9 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto+Mono:wght@500&display=swap"
         rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
     <meta charset="utf-8" />
     <script src="https://kit.fontawesome.com/015652d305.js" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -27,36 +25,14 @@
 </head>
 
 <body>
-    <section class="container article-width">
-        <article>
-            <header>
-                <div class="seperator">
-                    <h1>{{title}}</h1>
-                    <a href = "/articles" class="return">Back</a>
-                </div>
-                <div class="seperator">
-                    <h2>Colby Hall</h2>
-                    <div class="social">
-                        <a href="https://github.com/colbyhall"><i class="fa-brands fa-github"></i></a>
-                        <a href="https://twitter.com/imcolbyhall"><i class="fa-brands fa-twitter"></i></a>
-                        <a href="https://www.linkedin.com/in/colbeyyy/"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="mailto:me@cobeh.com"><i class="fa-solid fa-mailbox"></i></a>
-                        <a href="/"><i class="fa-solid fa-id-card"></i></a>
-                    </div>
-                </div>
-                <h3>{{date}} · {{read_time}}</h3>
-                <hr>
-            </header>
-            <section>
-                {{{body}}}
-            </section>
-        </article>
-    
+    <section class="container article-width min-max-height">
+        <h1>Articles</h1>
         <hr>
-    
-        <script src="https://utteranc.es/client.js" repo="colbyhall/website" issue-term="url" label="Article Comments"
-            theme="github-light" crossorigin="anonymous" async>
-            </script>
+        <ul>
+            {{#each articles}}
+                <li><a href = "/articles/{{link}}">{{title}}</a> · {{read_time}}</li>
+            {{/each}}
+        </ul>
     </section>
 
     {{>footer}}

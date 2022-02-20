@@ -1,7 +1,7 @@
 :root {
     --bg-color: #fff;
-    --fg-color: #222;
-    --fg-color_h: #1b2d5f;
+    --fg-color: #222222;
+    --fg-color_h: #1472ff;
     --fg-color1: #9c9c9c;
 }
 
@@ -21,6 +21,13 @@ body {
 
 a {
     color: var(--fg-color);
+    text-decoration: underline dotted;
+    transition: color .2s;
+    font-size: inherit;
+}
+
+a:hover {
+    color: var(--fg-color_h);
 }
 
 /* a {
@@ -83,12 +90,56 @@ h3 {
     font-size: 1.2em;
 }
 
-header > h1 {
+.seperator {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.return {
+    padding: 0.5em 1.5em;
+    background: var(--fg-color);
+    color: var(--bg-color);
+    border-radius: 5px;
+    text-decoration: none;
+    box-shadow: 2px 2px 5px #aaa;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.return:before {
+    content: '⭠';
+    
+    display: inline;
+    position: absolute;
+    opacity: 0;  
+    right: 90px;
+    transition: 0.2s;
+    font-weight: 700;
+}
+
+.return:hover{
+    padding-left: 2em;
+    padding-right: 1em;
+    color: var(--bg-color);
+    background: var(--fg-color_h);
+}
+
+.return:hover:before {
+    opacity: 1;
+    right: 75px;
+}
+
+.social > a {
+    margin: 0em 0.2em;
+}
+
+header > div > h1 {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
 }
 
-header > h2 {
+header > div > h2 {
     margin-top: 0.1em;
     margin-bottom: 0em;
         font-weight: 400;
@@ -118,10 +169,16 @@ footer {
     text-align: center;
     padding: 2em;
     background: var(--fg-color);
-    color: var(--bg-color);
+    color: var(--fg-color1);
+    display:flex;
+    justify-content: center;
 }
 
-footer > a {
+footer > div {
+    margin: 0em 1em;
+}
+
+footer > div > a {
     color: var(--bg-color);
 }
 
@@ -155,6 +212,10 @@ footer > a {
 
 article {
     margin-bottom: 4em;
+}
+
+.min-max-height {
+    min-height: calc(100vh - 10em);
 }
 
 .text-center {

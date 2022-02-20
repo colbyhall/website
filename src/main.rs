@@ -39,6 +39,18 @@ struct ArticleLayout<'a> {
 	read_time: &'a str,
 }
 
+#[derive(Serialize)]
+struct ArticleEntry<'a> {
+	title: &'a str,
+	link: &'a str,
+	read_time: String
+}
+
+#[derive(Serialize)]
+struct ArticlesLayout<'a> {
+	articles: Vec<ArticleEntry<'a>>,
+}
+
 struct GlobalState {
 	articles: HashMap<String, Article>,
 }
@@ -65,6 +77,10 @@ async fn main() {
 		.unwrap();
 
 	hbs.register_template_file("article", "views/layouts/article.hbs")
+		.unwrap();
+
+		
+	hbs.register_template_file("articles", "views/layouts/articles.hbs")
 		.unwrap();
 
 	let hbs = Arc::new(hbs);
@@ -94,6 +110,30 @@ async fn main() {
 	let global_state = GlobalState { articles };
 	unsafe { GLOBAL = Some(global_state) };
 
+	let articles_entry_hbs = hbs.clone();
+	let articles_entry = warp::path!("articles")
+		.map(move || {
+			let mut articles = Vec::with_capacity(GlobalState::get().articles.len());
+			for (key, value) in GlobalState::get().articles.iter() {
+				articles.push(ArticleEntry {
+					title: &value.title,
+					link: key,
+					read_time: format!("{} min read", value.read_time)
+				});
+			}
+
+			let render = articles_entry_hbs
+				.render(
+					"articles",
+					&ArticlesLayout {
+						articles
+					},
+				)
+				.unwrap_or_else(|err| err.to_string());
+
+			warp::reply::html(render)
+		});
+
 	let article_entry_hbs = hbs.clone();
 	let article_entry = warp::path!("articles" / String)
 		.and_then(|article| async move {
@@ -121,7 +161,7 @@ async fn main() {
 
 	let public = warp::path("public").and(warp::fs::dir("public"));
 
-	let routes = warp::get().and(root.or(article_entry).or(public));
+	let routes = warp::get().and(root.or(articles_entry).or(article_entry).or(public));
 
-	warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
+	warp::serve(routes).run(([127, 0, 0, 1], 1010)).await;
 }
