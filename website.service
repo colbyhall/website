@@ -4,7 +4,7 @@ Description=Service for running the website
 [Service]
 User=root
 WorkingDirectory=/root/website
-ExecStart=cargo run
+ExecStart=/root/website/target/release/website
 Restart=always
 
 [Install]

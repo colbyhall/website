@@ -1,3 +1,6 @@
+echo "Building"
+cargo build --release
+
 echo "Copying service file to /etc/systemd/system/"
 cp /root/website/website.service /etc/systemd/system/website.service
 echo "Reloading service files"
