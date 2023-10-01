@@ -425,6 +425,7 @@ td svg {
 
 #skills p {
     color: rgb(253, 250, 239);
+    text-align: center;
 }
 
 .skill h2 {
@@ -512,7 +513,7 @@ footer {
 
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
     display: flex;
 }
 
@@ -537,8 +538,8 @@ footer div p {
 }
 
 footer div svg {
-    height: 1em;
+    height: 1.5em;
     color:  white;
-    margin-right: 1em;
+    margin-right: 0.5em;
     margin-left: 1em;
 }
