@@ -43,31 +43,20 @@ h1, h2, h3 {
 
 h1 {
     font-weight: 700;
-    font-size: 2.5em;
+    font-size: 2em;
 }
 
 p {
     color: var(--fg-color);
-    font-size: 1.5em;
+    font-size: 1.2em;
+}
+
+li {
+    font-size: 1.2em;
 }
 
 strong, b {
     font-weight: 700;
-}
-
-footer {
-    text-align: center;
-    padding: 2em;
-    display:flex;
-    justify-content: center;
-    background: rgb(68,64,52);
-    background: linear-gradient(90deg, rgba(68,64,52,1) 0%, rgba(59,48,48,1) 33%, rgba(73,69,55,1) 67%, rgba(68,64,52,1) 100%);
-    color: white;
-    font-size: 1em;
-}
-
-footer > div {
-    margin: 0em 1em;
 }
 
 .container {
@@ -257,7 +246,7 @@ nav .button-container a:hover{
 
 #projects .project-container {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: stretch;
     display: flex;
     flex-wrap: wrap;
@@ -326,22 +315,13 @@ nav .button-container a:hover{
 
 }
 
-#contact .section {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-
-    padding: 3em;
-}
-
 #contact h1 {
     padding-top: 0;
     margin-top: 0;
 }
 
 td {
-    font-size: 1.4em;
+    font-size: 1em;
     color:  white;
     padding: 0.2em 0em;
 }
@@ -351,7 +331,7 @@ td a {
 }
 
 td svg {
-    height: 1.2em;
+    height: 1em;
     color:  white;
     margin-right: 1em;
     margin-left: 2em;
@@ -363,8 +343,11 @@ td svg {
     justify-content: space-evenly;
     display: flex;
 
-    background: rgb(34,193,195);
-    background: linear-gradient(16deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
+    background-image: url("../images/about.jpg");
+    background-position: center;
+    background-size: cover;
+
+    color: white;
 }
 
 @media screen and (min-width: 1775px) {
@@ -381,6 +364,11 @@ td svg {
     flex-wrap: wrap;
     max-width: 800px;
     padding: 2em;
+    color: white;
+}
+
+#about .section p {
+    color: white;
 }
 
 
@@ -401,7 +389,7 @@ td svg {
     align-items: center;
     justify-content: center;
     display: flex;
-    flex-wrap: wrap;
+    
 }
 
 @media screen and (min-width: 1775px) {
@@ -416,4 +404,144 @@ td svg {
 #about .collage .row img {
     margin: 0.4em;
     border: white 8px solid;
+}
+
+#skills {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+
+    color: rgb(253, 250, 239);
+
+    background-color: #BCFF9C;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1600 800'%3E%3Cg stroke='%23000000' stroke-width='66.7' stroke-opacity='0.05' %3E%3Ccircle fill='%23BCFF9C' cx='0' cy='0' r='1800'/%3E%3Ccircle fill='%23c2ec88' cx='0' cy='0' r='1700'/%3E%3Ccircle fill='%23c5da77' cx='0' cy='0' r='1600'/%3E%3Ccircle fill='%23c6c769' cx='0' cy='0' r='1500'/%3E%3Ccircle fill='%23c4b55f' cx='0' cy='0' r='1400'/%3E%3Ccircle fill='%23c1a456' cx='0' cy='0' r='1300'/%3E%3Ccircle fill='%23bb9250' cx='0' cy='0' r='1200'/%3E%3Ccircle fill='%23b3824c' cx='0' cy='0' r='1100'/%3E%3Ccircle fill='%23a97248' cx='0' cy='0' r='1000'/%3E%3Ccircle fill='%239e6445' cx='0' cy='0' r='900'/%3E%3Ccircle fill='%23915643' cx='0' cy='0' r='800'/%3E%3Ccircle fill='%2383493f' cx='0' cy='0' r='700'/%3E%3Ccircle fill='%23743d3c' cx='0' cy='0' r='600'/%3E%3Ccircle fill='%23643237' cx='0' cy='0' r='500'/%3E%3Ccircle fill='%23542932' cx='0' cy='0' r='400'/%3E%3Ccircle fill='%23431f2c' cx='0' cy='0' r='300'/%3E%3Ccircle fill='%23331724' cx='0' cy='0' r='200'/%3E%3Ccircle fill='%23240F1C' cx='0' cy='0' r='100'/%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
+    background-size: cover;
+
+    padding: 3em 0em;
+}
+
+#skills p {
+    color: rgb(253, 250, 239);
+}
+
+.skill h2 {
+    font-size: 1.6em;
+}
+
+#skills p a {
+    color: black;
+}
+
+#skills .main {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+@media screen and (min-width: 1775px) {
+    #skills .main {
+        flex-direction: row;
+    }
+}
+
+.skills {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#skills .main .games {
+    margin: 0em 6em;
+    margin-bottom: 3em;
+}
+
+#skills .main .games ul{
+    margin: 0;
+    padding: 0;
+}
+
+#skills .main .games ul li{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.skill ul {
+    margin: 0;
+    padding: 0;
+}
+
+.skill ul li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.skill-list {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    display: flex;
+    flex-wrap: wrap;
+
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1em;
+    margin: 2em;
+}
+
+.skill-list .skill {
+    margin: 0em 2em;
+}
+
+footer {
+    text-align: center;
+    padding: 1em;
+
+    background: rgb(68,64,52);
+    background: linear-gradient(90deg, rgba(68,64,52,1) 0%, rgba(59,48,48,1) 33%, rgba(73,69,55,1) 67%, rgba(68,64,52,1) 100%);
+    color: white;
+
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+footer > div {
+    margin: 0em 1em;
+}
+
+footer p {
+    color: white;
+    padding: 0em 2em;
+}
+
+footer div {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+
+    padding: 0em 2em;
+}
+
+footer div p {
+    color: white;
+    padding: 0;
+}
+
+footer div svg {
+    height: 1em;
+    color:  white;
+    margin-right: 1em;
+    margin-left: 1em;
 }

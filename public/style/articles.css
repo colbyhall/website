@@ -167,19 +167,55 @@ strong, b {
 
 footer {
     text-align: center;
-    padding: 2em;
-    background: var(--fg-color);
-    color: var(--fg-color1);
-    display:flex;
+    padding: 1em;
+
+    background: rgb(68,64,52);
+    background: linear-gradient(90deg, rgba(68,64,52,1) 0%, rgba(59,48,48,1) 33%, rgba(73,69,55,1) 67%, rgba(68,64,52,1) 100%);
+    color: white;
+
+    flex-direction: row;
+    align-items: center;
     justify-content: center;
+    display: flex;
 }
 
 footer > div {
     margin: 0em 1em;
 }
 
-footer > div > a {
-    color: var(--bg-color);
+footer p {
+    color: white;
+    padding: 0em 2em;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: dotted;
+}
+
+footer div {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+
+    padding: 0em 2em;
+}
+
+footer div p {
+    color: white;
+    padding: 0;
+}
+
+footer div svg {
+    height: 1em;
+    color:  white;
+    margin-right: 1em;
+    margin-left: 1em;
 }
 
 .container {
