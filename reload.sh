@@ -5,6 +5,7 @@ echo "Pulling from Github"
 git pull
 
 echo "Building"
+cargo update
 cargo build --release
 
 echo "Starting service"

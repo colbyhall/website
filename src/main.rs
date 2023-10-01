@@ -70,9 +70,6 @@ async fn main() {
 	let footer_str = fs::read_to_string("views/partials/footer.hbs").unwrap();
 	hbs.register_partial("footer", footer_str).unwrap();
 
-	let navbar_str = fs::read_to_string("views/partials/navbar.hbs").unwrap();
-	hbs.register_partial("navbar", navbar_str).unwrap();
-
 	hbs.register_template_file("base", "views/layouts/base.hbs")
 		.unwrap();
 
