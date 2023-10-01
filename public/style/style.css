@@ -436,7 +436,7 @@ td svg {
 }
 
 #skills .main {
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: center;
     justify-content: center;
     display: flex;
