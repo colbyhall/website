@@ -522,7 +522,6 @@ footer > div {
 
 footer p {
     color: white;
-    padding: 0em 2em;
 }
 
 footer div {
@@ -530,8 +529,6 @@ footer div {
     align-items: center;
     justify-content: center;
     display: flex;
-
-    padding: 0em 2em;
 }
 
 footer div p {
