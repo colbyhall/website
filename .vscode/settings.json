@@ -3,7 +3,7 @@
         {
             "match": "\\.rs*",
             "isAsync": true,
-            "cmd": "rustfmt ${file}",
+            "cmd": "rustfmt ${file} --edition 2021",
             "event": "onFileChange"
         }
     ]

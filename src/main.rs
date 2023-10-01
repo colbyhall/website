@@ -1,33 +1,24 @@
 #![feature(async_closure)]
 
+mod article;
+
 use {
+	article::*,
 	handlebars::Handlebars,
 	serde::Serialize,
 	std::{
 		collections::HashMap,
+		env,
 		fs,
-		path::PathBuf,
 		sync::Arc,
 	},
 	warp::Filter,
 };
 
-mod article;
-use article::*;
-
 #[derive(Serialize)]
-struct BaseLayout<'a> {
+struct RootLayout<'a> {
 	title: String,
 	body: &'a str,
-}
-
-impl<'a> BaseLayout<'a> {
-	fn new(title: impl ToString, body: &'a str) -> Self {
-		Self {
-			title: title.to_string(),
-			body,
-		}
-	}
 }
 
 #[derive(Serialize)]
@@ -40,125 +31,239 @@ struct ArticleLayout<'a> {
 }
 
 #[derive(Serialize)]
-struct ArticleEntry<'a> {
+struct BrowseArticleLayout<'a> {
 	title: &'a str,
 	link: &'a str,
-	read_time: String
+	read_time: String,
 }
 
 #[derive(Serialize)]
-struct ArticlesLayout<'a> {
-	articles: Vec<ArticleEntry<'a>>,
+struct BrowseArticlesLayout<'a> {
+	articles: Vec<BrowseArticleLayout<'a>>,
 }
-
-struct GlobalState {
-	articles: HashMap<String, Article>,
-}
-
-impl GlobalState {
-	fn get() -> &'static GlobalState {
-		unsafe { GLOBAL.as_ref().unwrap() }
-	}
-}
-
-static mut GLOBAL: Option<GlobalState> = None;
 
 #[tokio::main]
 async fn main() {
+	// Create Handlebars renderer and then intialize
 	let mut hbs = Handlebars::new();
 
+	// Register templates and partials. These will not be reloaded during the runtime.
 	let footer_str = fs::read_to_string("views/partials/footer.hbs").unwrap();
 	hbs.register_partial("footer", footer_str).unwrap();
-
 	hbs.register_template_file("base", "views/layouts/base.hbs")
 		.unwrap();
-
 	hbs.register_template_file("article", "views/layouts/article.hbs")
 		.unwrap();
-
-		
 	hbs.register_template_file("articles", "views/layouts/articles.hbs")
 		.unwrap();
 
-	let hbs = Arc::new(hbs);
+	// Debug layout allows the server to reload the web pages with every request. This makes it easy to iterate on the actual pages
+	let debug_layout = env::args().any(|arg| arg == "-debug_layout");
 
-	let root_hbs = hbs.clone();
-	let root = warp::path::end().map(move || {
-		let html = fs::read_to_string("views/root.hbs").unwrap();
-		let render = root_hbs
-			.render("base", &BaseLayout::new("Colby Hall | Portfolio", &html))
-			.unwrap_or_else(|err| err.to_string());
-		warp::reply::html(render)
-	});
+	if debug_layout {
+		// By this point the renderer has been initialized and now needs to be shared across threads for live rendering.
+		let hbs = Arc::new(hbs);
 
-	let mut articles = HashMap::new();
-	for e in fs::read_dir("articles").unwrap() {
-		let e = e.unwrap();
-		if e.file_type().unwrap().is_file() {
-			let path = e.path();
-			let article = Article::new(&path).unwrap();
-			articles.insert(
-				path.file_stem().unwrap().to_str().unwrap().to_string(),
-				article,
-			);
+		let root = {
+			let hbs = hbs.clone();
+			warp::path::end().map(move || {
+				let html = fs::read_to_string("views/root.hbs").unwrap();
+				let render = hbs
+					.render(
+						"base",
+						&RootLayout {
+							title: "Colby Hall | Portfolio".to_string(),
+							body: &html,
+						},
+					)
+					.unwrap_or_else(|err| err.to_string());
+				warp::reply::html(render)
+			})
+		};
+
+		let browse_articles = {
+			let hbs = hbs.clone();
+			warp::path!("articles").map(move || {
+				// Load and render all articles to gather description information
+				let articles: Vec<(String, Article)> = fs::read_dir("articles")
+					.unwrap()
+					.filter_map(|e| {
+						let e = e.unwrap();
+						if e.file_type().unwrap().is_file() {
+							let path = e.path();
+							let article = Article::new(&path).unwrap();
+
+							let name = path.file_stem().unwrap().to_str().unwrap().to_string();
+							Some((name, article))
+						} else {
+							None
+						}
+					})
+					.collect();
+
+				let articles: Vec<BrowseArticleLayout<'_>> = articles
+					.iter()
+					.map(|article| BrowseArticleLayout {
+						title: &article.1.title,
+						link: &article.0,
+						read_time: format!("{} min read", article.1.read_time),
+					})
+					.collect();
+
+				let render = hbs
+					.render("articles", &BrowseArticlesLayout { articles })
+					.unwrap_or_else(|err| err.to_string());
+
+				warp::reply::html(render)
+			})
+		};
+
+		let article = {
+			let hbs = hbs.clone();
+			warp::path!("articles" / String)
+				.and_then(|article| async move {
+					let article = fs::read_dir("articles").unwrap().find_map(|e| {
+						let e = e.unwrap();
+						if e.file_type().unwrap().is_file() {
+							let path = e.path();
+							let name = path.file_stem().unwrap().to_str().unwrap().to_string();
+
+							if article == name {
+								return Some(Article::new(&path).unwrap());
+							}
+						}
+
+						None
+					});
+
+					match article {
+						Some(article) => Ok(article),
+						None => Err(warp::reject::not_found()),
+					}
+				})
+				.map(move |article: Article| {
+					let render = hbs
+						.render(
+							"article",
+							&ArticleLayout {
+								browser_title: &format!("Colby Hall | {}", &article.title),
+								title: &article.title,
+								date: &article.date.to_string(),
+								body: &article.body,
+								read_time: &format!("{} min read", article.read_time),
+							},
+						)
+						.unwrap_or_else(|err| err.to_string());
+
+					warp::reply::html(render)
+				})
+		};
+
+		let public = warp::path("public").and(warp::fs::dir("public"));
+		let routes = warp::get().and(root.or(browse_articles).or(article).or(public));
+
+		warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
+	} else {
+		// Render all pages ahead of time to reduce request work load.
+		struct RenderCache {
+			root: String,
+			browse_articles: String,
+			articles: HashMap<String, String>,
 		}
-	}
 
-	let global_state = GlobalState { articles };
-	unsafe { GLOBAL = Some(global_state) };
+		let root = {
+			let body = fs::read_to_string("views/root.hbs").unwrap();
+			hbs.render(
+				"base",
+				&RootLayout {
+					title: "Colby Hall | Portfolio".to_string(),
+					body: &body,
+				},
+			)
+			.unwrap_or_else(|err| err.to_string())
+		};
 
-	let articles_entry_hbs = hbs.clone();
-	let articles_entry = warp::path!("articles")
-		.map(move || {
-			let mut articles = Vec::with_capacity(GlobalState::get().articles.len());
-			for (key, value) in GlobalState::get().articles.iter() {
-				articles.push(ArticleEntry {
-					title: &value.title,
-					link: key,
-					read_time: format!("{} min read", value.read_time)
-				});
-			}
+		let mut articles: HashMap<String, Article> = fs::read_dir("articles")
+			.unwrap()
+			.filter_map(|e| {
+				let e = e.unwrap();
+				if e.file_type().unwrap().is_file() {
+					let path = e.path();
+					let name = path.file_stem().unwrap().to_str().unwrap().to_string();
+					let article = Article::new(&path).unwrap();
+					Some((name, article))
+				} else {
+					None
+				}
+			})
+			.collect();
 
-			let render = articles_entry_hbs
-				.render(
-					"articles",
-					&ArticlesLayout {
-						articles
-					},
-				)
-				.unwrap_or_else(|err| err.to_string());
+		let browse_articles = {
+			let articles: Vec<BrowseArticleLayout<'_>> = articles
+				.iter()
+				.map(|(name, article)| BrowseArticleLayout {
+					title: &article.title,
+					link: name,
+					read_time: format!("{} min read", article.read_time),
+				})
+				.collect();
 
-			warp::reply::html(render)
+			hbs.render("articles", &BrowseArticlesLayout { articles })
+				.unwrap_or_else(|err| err.to_string())
+		};
+
+		let articles: HashMap<String, String> = articles
+			.drain()
+			.map(|(name, article)| {
+				let render = hbs
+					.render(
+						"article",
+						&ArticleLayout {
+							browser_title: &format!("Colby Hall | {}", &article.title),
+							title: &article.title,
+							date: &article.date.to_string(),
+							body: &article.body,
+							read_time: &format!("{} min read", article.read_time),
+						},
+					)
+					.unwrap_or_else(|err| err.to_string());
+
+				(name, render)
+			})
+			.collect();
+
+		let render_cache = Arc::new(RenderCache {
+			root,
+			browse_articles,
+			articles,
 		});
 
-	let article_entry_hbs = hbs.clone();
-	let article_entry = warp::path!("articles" / String)
-		.and_then(|article| async move {
-			match GlobalState::get().articles.get(&article) {
-				Some(article) => Ok(article),
-				None => Err(warp::reject::not_found()),
-			}
-		})
-		.map(move |article: &Article| {
-			let render = article_entry_hbs
-				.render(
-					"article",
-					&ArticleLayout {
-						browser_title: &format!("Colby Hall | {}", &article.title),
-						title: &article.title,
-						date: &article.date.to_string(),
-						body: &article.body,
-						read_time: &format!("{} min read", article.read_time)
-					},
-				)
-				.unwrap_or_else(|err| err.to_string());
+		let root = {
+			let render_cache = render_cache.clone();
+			warp::path::end().map(move || warp::reply::html(render_cache.root.clone()))
+		};
 
-			warp::reply::html(render)
-		});
+		let browse_articles = {
+			let render_cache = render_cache.clone();
+			warp::path!("articles")
+				.map(move || warp::reply::html(render_cache.browse_articles.clone()))
+		};
 
-	let public = warp::path("public").and(warp::fs::dir("public"));
+		let article = {
+			let render_cache = render_cache.clone();
+			warp::path!("articles" / String).map(move |article| {
+				let article = render_cache.articles.get(&article);
 
-	let routes = warp::get().and(root.or(articles_entry).or(article_entry).or(public));
+				match article {
+					Some(article) => warp::reply::html(article.clone()),
+					None => warp::reply::html(render_cache.browse_articles.clone()),
+				}
+			})
+		};
 
-	warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
+		let public = warp::path("public").and(warp::fs::dir("public"));
+		let routes = warp::get().and(root.or(browse_articles).or(article).or(public));
+
+		warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
+	};
 }
